@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Load Balancer Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+    <h1>DNS Load Balancer Dashboard</h1>
+    <div id="dashboard">
+        <h2>Server Health</h2>
+        <table id="server-health-table">
+            <thead>
+                <tr><th>Server</th><th>Status</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <h2>Active Clients</h2>
+        <table id="active-clients-table">
+            <thead>
+                <tr><th>Client</th><th>Request Count</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <h2>Cache Statistics</h2>
+        <p id="cache-size">Loading...</p>
+    </div>
+    <script>
+        async function loadDashboardData() {
+            const response = await fetch('/api/data');
+            const data = await response.json();
+            // Populate tables and cache info
+            const serverHealthTable = document.getElementById('server-health-table').getElementsByTagName('tbody')[0];
+            const activeClientsTable = document.getElementById('active-clients-table').getElementsByTagName('tbody')[0];
+            const cacheSizeElement = document.getElementById('cache-size');
+
+            // Populate server health table
+            for (const server in data.server_health) {
+                const row = serverHealthTable.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                cell1.textContent = server;
+                cell2.textContent = data.server_health[server] ? 'Healthy' : 'Unhealthy';
+            }
+
+            // Populate active clients table
+            for (const client in data.active_clients) {
+                const row = activeClientsTable.insertRow();
+                const cell1 = row.insertCell(0);
+                const cell2 = row.insertCell(1);
+                cell1.textContent = client;
+                cell2.textContent = data.active_clients[client];
+            }
+
+            // Update cache size
+            cacheSizeElement.textContent = `Cache Size: ${data.cache_size}`;
+        }
+        window.onload = loadDashboardData;
+    </script>
+</body>
+</html>
